@@ -2,7 +2,7 @@
 
 Verification: INCONCLUSIVE
 
-Pairing succeeded with a user-supplied one-time link. The existing thread list and this conversation load inside the native HUD. Sending prompts and global hotkey/focus behavior remain unverified.
+Pairing succeeded with a user-supplied one-time link. The existing thread list and this conversation load inside the native HUD. The user successfully sent a prompt from the HUD. Global hotkey/focus behavior remains unverified.
 
 ## Observed
 
@@ -14,12 +14,11 @@ Pairing succeeded with a user-supplied one-time link. The existing thread list a
 
 ## Not established
 
-- Sending prompts. Pairing and loading shared threads have now been observed.
 - Actual global shortcut dispatch while another app has focus.
 - Icon hide/show retention, focus return, fullscreen, and multiple displays.
 - Draft persistence or selection behavior in authenticated T3.
 
-The coding session itself runs on this T3 backend. Network configuration was not changed because that can restart it. No prompts or external messages were sent. The next experiment requires a T3 pairing link supplied directly to the prototype and the manual steps in README.md.
+The coding session itself runs on this T3 backend. Network configuration was not changed because that can restart it. The agent sent no prompts or external messages. The user subsequently paired the prototype and sent a test prompt. Remaining experiments are the hide/show, focus, restart, and disconnection checks in README.md.
 
 ## Reproduction
 
@@ -38,3 +37,7 @@ Captured UI evidence: [pairing screen](evidence/pairing.png).
 The user supplied a one-time pairing link after configuring network access. Loaded it directly in the native URL field without saving the credential to repository files. T3 exchanged the credential and displayed the existing thread list. Opening the existing HUD development thread loaded its conversation and focused the composer. No message was sent. The app remains open for user testing.
 
 The prototype still defaults to the loopback endpoint at launch. Its paired session belongs to the supplied endpoint, so after restarting, load that same endpoint without the consumed token. Endpoint persistence is not implemented.
+
+## User acceptance checkpoint
+
+The user sent "test from the hud" through the authenticated prototype, and the assistant received and answered it in the existing conversation. The user then reported that it works well. This establishes a successful user-driven prompt round trip, not blanket verification of all window and lifecycle behavior.

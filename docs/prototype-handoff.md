@@ -4,4 +4,6 @@ Primary source: branch `prototype/native-webview`, directory `prototype/native-w
 
 Question: can the existing T3 UI authenticate and operate inside a persistent native HUD panel?
 
-Partial result: native app builds; global shortcut registration succeeds; T3's real pairing screen renders in WebKit and accepts input. Authenticated behavior remains unverified. Continue with supported T3 pairing and the manual experiment documented in the prototype README. No production design change is justified by the partial result.
+Result: the native app builds, T3 pairing succeeds, the existing thread list and conversation load, and the user sent a prompt from the HUD and received a reply. This validates hosting the existing T3 UI for the core workflow. Keep the implementation as the starting point for the MVP.
+
+Remaining work: remember the connection endpoint without credentials, add dragging and remembered icon placement, package normal app launch, and verify global hotkeys, focus, retained drafts, fullscreen, and disconnect/reconnect behavior. Overall verification remains INCONCLUSIVE until those window and lifecycle checks are completed.
