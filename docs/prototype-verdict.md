@@ -1,3 +1,5 @@
+Historical prototype results at commit `1b8fdbc`. Current app instructions are in the root README.
+
 # Prototype verdict
 
 Verification: INCONCLUSIVE
@@ -30,7 +32,7 @@ A separate verifier compiled and typechecked the native source without diagnosti
 
 Source fingerprint, SHA-256: `e408630c462bbdcd6b429d1edf5be12091c6c802c580ecb71c87f6d92026da81`.
 
-Captured UI evidence: [pairing screen](evidence/pairing.png).
+Captured UI evidence: [pairing screen](evidence/prototype-pairing.png).
 
 ## Authenticated follow-up
 

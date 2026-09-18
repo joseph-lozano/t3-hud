@@ -8,7 +8,7 @@ Vocabulary for the hotkey-accessible wrapper around the T3 Code interface.
 The view of T3 Code that the user can summon and dismiss with a hotkey.
 
 **Dismiss**:
-Hide the T3 view while keeping its floating icon available. Whether any underlying processes stop is a separate lifecycle decision.
+Hide the T3 view while keeping its floating icon available. Dismissal leaves T3 and its work running.
 
 **Floating icon**:
 The on-screen control that toggles the T3 view's visibility.

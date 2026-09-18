@@ -1,6 +1,6 @@
 # Native webview experiment
 
-Primary source: branch `prototype/native-webview`, directory `prototype/native-webview/`.
+Primary source: commit `1b8fdbc` on branch `prototype/native-webview`, then-directory `prototype/native-webview/`. The app now lives in `Sources/T3HUD/`.
 
 Question: can the existing T3 UI authenticate and operate inside a persistent native HUD panel?
 

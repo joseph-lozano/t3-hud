@@ -57,4 +57,6 @@ GitHub searches found related proposals but no verified implementation matching 
 - Verify icon placement, hotkey handling, Spaces, fullscreen behavior, and keyboard focus on macOS.
 - Verify informational disconnected behavior when the backend becomes unavailable.
 
-The user confirmed shared understanding of this design. No application implementation has begun.
+The user confirmed shared understanding. The prototype established pairing, shared threads, and prompt sending. The MVP adds credential-free connection URL persistence, a draggable icon with remembered display-relative placement, and normal macOS app packaging. T3 Connect remains T3's own environment-discovery flow.
+
+Verification covers the public app UI: launching, connecting, dragging, toggling, focus, fullscreen, and server recovery. The native Computer Use driver cannot generate global shortcuts; those checks require a recorded physical keypress by the user.

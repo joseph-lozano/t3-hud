@@ -1,2 +1,6 @@
 .build/
 .DS_Store
+dist/
+.verification/
+.swiftpm/
+__pycache__/

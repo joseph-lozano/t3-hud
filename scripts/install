@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+./scripts/build
+mkdir -p "$HOME/Applications"
+if pgrep -x T3HUD >/dev/null; then
+    echo 'Quit T3 HUD from its menu bar before installing.' >&2
+    exit 1
+fi
+ditto 'dist/T3 HUD.app' "$HOME/Applications/T3 HUD.app"
+printf 'Installed: %s/Applications/T3 HUD.app\n' "$HOME"
