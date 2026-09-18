@@ -2,7 +2,7 @@
 
 Verification: INCONCLUSIVE
 
-The native integration is viable enough for an authenticated trial, but the main question is not yet settled.
+Pairing succeeded with a user-supplied one-time link. The existing thread list and this conversation load inside the native HUD. Sending prompts and global hotkey/focus behavior remain unverified.
 
 ## Observed
 
@@ -14,7 +14,7 @@ The native integration is viable enough for an authenticated trial, but the main
 
 ## Not established
 
-- Pairing/authentication, shared threads, and sending prompts.
+- Sending prompts. Pairing and loading shared threads have now been observed.
 - Actual global shortcut dispatch while another app has focus.
 - Icon hide/show retention, focus return, fullscreen, and multiple displays.
 - Draft persistence or selection behavior in authenticated T3.
@@ -32,3 +32,9 @@ A separate verifier compiled and typechecked the native source without diagnosti
 Source fingerprint, SHA-256: `e408630c462bbdcd6b429d1edf5be12091c6c802c580ecb71c87f6d92026da81`.
 
 Captured UI evidence: [pairing screen](evidence/pairing.png).
+
+## Authenticated follow-up
+
+The user supplied a one-time pairing link after configuring network access. Loaded it directly in the native URL field without saving the credential to repository files. T3 exchanged the credential and displayed the existing thread list. Opening the existing HUD development thread loaded its conversation and focused the composer. No message was sent. The app remains open for user testing.
+
+The prototype still defaults to the loopback endpoint at launch. Its paired session belongs to the supplied endpoint, so after restarting, load that same endpoint without the consumed token. Endpoint persistence is not implemented.
