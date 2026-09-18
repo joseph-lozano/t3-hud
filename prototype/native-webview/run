@@ -1,0 +1,20 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")"
+app="$PWD/.build/T3 HUD Prototype.app"
+mkdir -p "$app/Contents/MacOS"
+xcrun swiftc main.swift -o "$app/Contents/MacOS/T3HUDPrototype" -framework AppKit -framework WebKit -framework Carbon
+cat > "$app/Contents/Info.plist" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>local.t3hud.prototype</string>
+<key>CFBundleName</key><string>T3 HUD Prototype</string>
+<key>CFBundleExecutable</key><string>T3HUDPrototype</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>LSUIElement</key><true/>
+<key>NSHighResolutionCapable</key><true/>
+<key>NSAppTransportSecurity</key><dict><key>NSAllowsArbitraryLoadsInWebContent</key><true/></dict>
+</dict></plist>
+PLIST
+exec "$app/Contents/MacOS/T3HUDPrototype"
