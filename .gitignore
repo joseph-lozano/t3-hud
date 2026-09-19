@@ -4,3 +4,4 @@ dist/
 .verification/
 .swiftpm/
 __pycache__/
+.signing-identity

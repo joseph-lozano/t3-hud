@@ -2,6 +2,7 @@ import Foundation
 import CoreGraphics
 
 public struct IconPlacement: Codable {
+    public static let iconSize: CGFloat = 48
     public let screenID: UInt32
     public let x: Double
     public let y: Double
@@ -17,8 +18,8 @@ public struct IconPlacement: Codable {
     }
 
     public static func clamped(_ point: CGPoint, in screen: CGRect) -> CGPoint {
-        CGPoint(x: max(screen.minX, min(point.x, screen.maxX - 64)),
-                y: max(screen.minY, min(point.y, screen.maxY - 64)))
+        CGPoint(x: max(screen.minX, min(point.x, screen.maxX - iconSize)),
+                y: max(screen.minY, min(point.y, screen.maxY - iconSize)))
     }
 
     public static func panelFrame(icon: CGRect, size: CGSize, screen: CGRect) -> CGRect {

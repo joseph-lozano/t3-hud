@@ -17,7 +17,7 @@ Run `python3 scripts/verification/session.py doctor <run-directory>`. It verifie
 
 ## Drive
 
-Use the Computer Use skill and `sky` to inspect and interact with the app by its run-specific bundle ID. Re-query accessibility state before acting. The URL field is labelled `T3 connection URL`. The fixture input is labelled `Unsent draft`. Use the floating `Toggle T3 HUD` icon, and the `T3` menu's Show / Hide and Quit entries. For icon drag and fullscreen controls, derive coordinates from fresh screenshots if accessibility has no suitable action.
+Use the Computer Use skill and `sky` to inspect and interact with the app by its run-specific bundle ID. Re-query accessibility state before acting. The connection bar is hidden by default. Reveal it through `T3 → Show Connection Bar` or Cmd+L before editing the URL field labelled `T3 connection URL`. Connecting hides the bar again. The fixture input is labelled `Unsent draft`. Use the floating `Toggle T3 HUD` icon, and the `T3` menu's Show / Hide and Quit entries. For icon drag and fullscreen controls, derive coordinates from fresh screenshots if accessibility has no suitable action.
 
 The Computer Use driver cannot inject global shortcuts. Ask the user to press Cmd+Option+H with the disposable host active and report show/hide and focus. Do not substitute an app-targeted synthetic key for proof of a global hotkey.
 

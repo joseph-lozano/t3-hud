@@ -25,7 +25,7 @@
 
 Source: https://github.com/finna/herdr-hud/blob/main/Sources/HerdrHUD/App.swift
 
-- A draggable 64-by-64-point icon determines which display hosts the panel.
+- A draggable icon determines which display hosts the panel. Herdr uses 64 by 64 points; the user requested a smaller circular T3 button, so this app uses 48 by 48 points.
 - Initial icon position is 32 points from the screen's left edge and 180 points from its bottom edge.
 - Persist the icon's screen-relative position and screen ID. Fall back to the first screen when the saved screen is unavailable.
 - Start the panel at 940 by 650 points, with a minimum of 640 by 430.
