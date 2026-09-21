@@ -49,3 +49,5 @@ Sign in through Xcode → Settings → Apple Accounts. Select your team, open Ma
 List available identities with `security find-identity -v -p codesigning`. Save the chosen certificate's fingerprint in the ignored `.signing-identity` file, or pass `T3HUD_SIGNING_IDENTITY` when running `./scripts/build` or `./scripts/install`. Subsequent builds use that identity with hardened runtime and a secure timestamp; an unavailable configured identity fails the build rather than falling back to ad-hoc signing. Keep certificate/private-key exports out of the repository.
 
 Moving from ad-hoc signing to a certificate may require one new Keychain approval. Notarization and public distribution are separate from this local installation.
+
+For a signed, notarized Apple Silicon DMG, use the manually triggered GitHub Actions workflow. See [release setup and build instructions](docs/releases.md) for the required secrets and download steps.

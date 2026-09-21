@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+app="$PWD/dist/T3 HUD.app"
+[[ -d "$app" ]] || { echo 'Run ./scripts/build first.' >&2; exit 1; }
+version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist")"
+[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo 'Invalid app version.' >&2; exit 1; }
+codesign --verify --strict "$app"
+stage="$(mktemp -d "${TMPDIR:-/tmp}/t3hud-dmg.XXXXXX")"
+trap 'rm -rf "$stage"' EXIT
+ditto "$app" "$stage/T3 HUD.app"
+ln -s /Applications "$stage/Applications"
+dmg="$PWD/dist/T3-HUD-$version.dmg"
+hdiutil create -volname 'T3 HUD' -srcfolder "$stage" -format UDZO -ov "$dmg"
+if [[ -n "${T3HUD_SIGNING_IDENTITY:-}" ]]; then
+    codesign --force --timestamp --sign "$T3HUD_SIGNING_IDENTITY" "$dmg"
+    codesign --verify --strict "$dmg"
+fi
+printf '%s\n' "$dmg"
