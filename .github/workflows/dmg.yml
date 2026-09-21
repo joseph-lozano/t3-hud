@@ -64,7 +64,7 @@ jobs:
       - name: Build Apple Silicon signed app
         run: |
           ./scripts/build
-          lipo -verify_arch arm64 'dist/T3 HUD.app/Contents/MacOS/T3HUD'
+          lipo 'dist/T3 HUD.app/Contents/MacOS/T3HUD' -verify_arch arm64
 
       - name: Create signed DMG
         run: ./scripts/package-dmg
