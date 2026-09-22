@@ -26,7 +26,7 @@ fi
 if [[ -n "${T3HUD_BUILD_NUMBER:-}" ]]; then
     /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $T3HUD_BUILD_NUMBER" "$app/Contents/Info.plist"
 fi
-cp Resources/T3Mark.png Resources/T3-MIT-LICENSE.txt Resources/NotificationBridge.js "$app/Contents/Resources/"
+cp Resources/T3Mark.png Resources/T3-MIT-LICENSE.txt Resources/NotificationBridge.js Resources/ActivityBridge.js "$app/Contents/Resources/"
 signing_identity="${T3HUD_SIGNING_IDENTITY:-}"
 if [[ -z "$signing_identity" && -f .signing-identity ]]; then
     signing_identity="$(cat .signing-identity)"

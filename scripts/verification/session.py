@@ -58,7 +58,7 @@ if action == 'start':
     endpoint = json.loads((root / 'endpoint.json').read_text())
     owner['fixture_identity'] = process_identity(fixture.pid)
     (root / 'owner.json').write_text(json.dumps(owner, indent=2))
-    command('defaults', 'write', bundle, 'connectionURL', endpoint['url'])
+    command('defaults', 'write', bundle, 'verificationURL', endpoint['url'])
     print(root)
     print('Endpoint:', endpoint['url'])
     print('Bundle:', bundle)

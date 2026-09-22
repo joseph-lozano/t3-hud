@@ -9,24 +9,22 @@ final class HUDPanel: NSPanel {
     override func cancelOperation(_ sender: Any?) {} // Escape remains available to T3.
 }
 
-final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, NSWindowDelegate, NSMenuItemValidation {
+final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, NSWindowDelegate {
     private var panel: HUDPanel!
     private var icon: NSPanel!
     private var web: WKWebView!
     private let attention = AttentionBridge()
-    private var address: NSTextField!
-    private var connectionBar: NSStackView!
-    private var webTop: NSLayoutConstraint!
     private var disconnected: NSView!
     private var item: NSStatusItem!
     private var hotkey: EventHotKeyRef?
     private var handler: EventHandlerRef?
     private let preferences = UserDefaults.standard
     private let monitor = ConnectionMonitor()
-    private var connection: Connection?
+    private let connection = HUD.clientURL()
     private var failedNavigation = false
     private var shortcutAvailable = false
     private var reachable: Bool?
+    private var activityWorking = false
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -50,7 +48,7 @@ final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDele
     private func makeMenus() {
         let menu = NSMenu()
         menu.addItem(withTitle: "Show / Hide T3 HUD", action: #selector(toggle), keyEquivalent: "")
-        menu.addItem(withTitle: "Show Connection Bar", action: #selector(toggleConnectionBar), keyEquivalent: "l")
+        menu.addItem(withTitle: "Reload T3", action: #selector(refresh), keyEquivalent: "r")
         menu.addItem(.separator())
         menu.addItem(withTitle: "Quit T3 HUD", action: #selector(quit), keyEquivalent: "q")
         menu.items.forEach { $0.target = self }
@@ -96,42 +94,32 @@ final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDele
            let script = try? String(contentsOf: url) {
             configuration.userContentController.addUserScript(WKUserScript(source: attention.userScript(script), injectionTime: .atDocumentStart, forMainFrameOnly: true))
             configuration.userContentController.add(attention, name: "t3HudNotifications")
+            if let activityURL = Bundle.main.url(forResource: "ActivityBridge", withExtension: "js"),
+               let activityScript = try? String(contentsOf: activityURL) {
+                configuration.userContentController.addUserScript(WKUserScript(source: activityScript, injectionTime: .atDocumentStart, forMainFrameOnly: true))
+            }
         }
         web = WKWebView(frame: .zero, configuration: configuration)
         web.navigationDelegate = self; web.uiDelegate = self
         attention.web = web; attention.panel = panel
         attention.onOpen = { [weak self] in self?.show() }
-        address = NSTextField(string: preferences.string(forKey: "connectionURL") ?? "http://127.0.0.1:3773")
-        address.placeholderString = "T3 server or pairing URL"
-        address.setAccessibilityLabel("T3 connection URL")
-        address.target = self; address.action = #selector(connect)
-        address.cell?.sendsActionOnEndEditing = false
-        let go = NSButton(title: "Connect", target: self, action: #selector(connect))
-        let reload = NSButton(title: "Reload", target: self, action: #selector(refresh))
-        let top = NSStackView(views: [address, go, reload]); top.spacing = 8
-        connectionBar = top
-        top.isHidden = true
         disconnected = NSView()
         disconnected.wantsLayer = true
         disconnected.layer?.backgroundColor = NSColor.windowBackgroundColor.cgColor
         disconnected.isHidden = true
-        let title = NSTextField(labelWithString: "T3 is disconnected")
+        let title = NSTextField(labelWithString: "T3 Connect is unreachable")
         title.font = .systemFont(ofSize: 22, weight: .semibold)
-        let detail = NSTextField(wrappingLabelWithString: "Waiting for your T3 server. This view will reconnect when it is available.")
+        let detail = NSTextField(wrappingLabelWithString: "Waiting for \(connection.host ?? "T3 Connect"). This view will reconnect when it is available.")
         detail.alignment = .center
         let message = NSStackView(views: [title, detail]); message.orientation = .vertical; message.spacing = 12
         message.translatesAutoresizingMaskIntoConstraints = false
         disconnected.addSubview(message)
-        for view in [top, web!, disconnected!] {
+        for view in [web!, disconnected!] {
             view.translatesAutoresizingMaskIntoConstraints = false
             root.addSubview(view)
         }
-        webTop = web.topAnchor.constraint(equalTo: root.topAnchor)
         NSLayoutConstraint.activate([
-            top.leadingAnchor.constraint(equalTo: root.leadingAnchor, constant: 12),
-            top.trailingAnchor.constraint(equalTo: root.trailingAnchor, constant: -12),
-            top.topAnchor.constraint(equalTo: root.topAnchor, constant: 10), top.heightAnchor.constraint(equalToConstant: 28),
-            webTop,
+            web.topAnchor.constraint(equalTo: root.topAnchor),
             web.leadingAnchor.constraint(equalTo: root.leadingAnchor), web.trailingAnchor.constraint(equalTo: root.trailingAnchor),
             web.bottomAnchor.constraint(equalTo: root.bottomAnchor),
             disconnected.leadingAnchor.constraint(equalTo: web.leadingAnchor), disconnected.trailingAnchor.constraint(equalTo: web.trailingAnchor),
@@ -163,6 +151,10 @@ final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDele
         icon.contentView = button
         attention.icon = icon
         attention.onBadge = { [weak button] image in button?.badgeImage = image }
+        attention.onActivity = { [weak self, weak button] working in
+            self?.activityWorking = working
+            button?.isWorking = working && self?.reachable != false
+        }
         icon.orderFrontRegardless()
     }
 
@@ -234,20 +226,7 @@ final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDele
     }
 
     private func focusContent() {
-        panel.makeFirstResponder(connectionBar.isHidden ? (disconnected.isHidden ? web : nil) : address)
-    }
-
-    @objc private func toggleConnectionBar() {
-        connectionBar.isHidden.toggle()
-        webTop.constant = connectionBar.isHidden ? 0 : 46
-        show()
-    }
-
-    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
-        if menuItem.action == #selector(toggleConnectionBar) {
-            menuItem.state = connectionBar?.isHidden == false ? .on : .off
-        }
-        return true
+        panel.makeFirstResponder(disconnected.isHidden ? web : nil)
     }
 
     @objc private func toggle() {
@@ -259,47 +238,40 @@ final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDele
         return true
     }
 
-    @objc private func connect() {
-        guard let next = Connection(address.stringValue) else {
-            let alert = NSAlert()
-            alert.messageText = "Invalid connection URL"
-            alert.informativeText = "Enter an HTTP or HTTPS URL without a username or password."
-            alert.beginSheetModal(for: panel)
-            return
-        }
-        connectionBar.isHidden = true
-        webTop.constant = 0
-        attention.hideToast()
-        attention.onBadge?(nil)
-        attention.origin = AttentionBridge.origin(next.savedURL)
-        connection = next
-        preferences.set(next.savedURL.absoluteString, forKey: "connectionURL")
-        address.stringValue = next.savedURL.absoluteString
-        reachable = nil
-        failedNavigation = false
-        disconnected.isHidden = true
-        focusContent()
-        web.load(URLRequest(url: next.requestURL))
-        monitor.start(url: next.savedURL) { [weak self] online in self?.reachabilityChanged(online) }
+    /// The HUD is a client for hosted T3 Connect only; it never targets a T3 server directly.
+    private static func clientURL() -> URL {
+        let client = URL(string: "https://app.t3.codes/")!
+        // Isolated verification bundles may point at their owned loopback fixture.
+        guard Bundle.main.bundleIdentifier?.hasPrefix("local.t3hud.verify.") == true,
+              let value = UserDefaults.standard.string(forKey: "verificationURL"),
+              let url = URL(string: value), ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { return client }
+        return url
+    }
+
+    private func connect() {
+        // Direct server addresses from earlier builds are no longer used.
+        preferences.removeObject(forKey: "connectionURL")
+        attention.origin = AttentionBridge.origin(connection)
+        web.load(URLRequest(url: connection))
+        monitor.start(url: connection) { [weak self] online in self?.reachabilityChanged(online) }
     }
 
     private func reachabilityChanged(_ online: Bool) {
         let becameUnavailable = !online && reachable != false
         reachable = online
+        attention.onActivity?(activityWorking)
         disconnected.isHidden = online
         if becameUnavailable && panel.isKeyWindow { focusContent() }
-        if online && failedNavigation, let connection {
+        if online && failedNavigation {
             failedNavigation = false
-            // Pairing credentials are used only for the initial explicit connection.
-            web.load(URLRequest(url: connection.savedURL))
+            web.load(URLRequest(url: connection))
         }
         // A loaded T3 document owns WebSocket reconnection. Keep its drafts intact.
     }
 
     @objc private func refresh() {
-        guard let connection else { return }
         failedNavigation = false
-        web.load(URLRequest(url: connection.savedURL))
+        web.load(URLRequest(url: connection))
     }
 
     @objc private func quit() { NSApp.terminate(nil) }
@@ -314,6 +286,10 @@ final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDele
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         failedNavigation = false
         if reachable != false { disconnected.isHidden = true }
+    }
+
+    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+        attention.onActivity?(false)
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor response: WKNavigationResponse,
