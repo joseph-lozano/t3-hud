@@ -16,6 +16,7 @@
 - When T3 is unavailable, show an informational disconnected view. Do not launch T3 or offer a launch button.
 - Restore the HUD's own selected thread and unfinished draft on reopening; do not follow the main T3 window's selection.
 - Use T3's existing client behavior for selection and drafts. Retain the webview while hidden and use persistent browser storage; do not implement a separate state system or promise persistence beyond what T3 supports.
+- Run client only: always load hosted T3 Connect (`https://app.t3.codes`). Do not offer direct server URLs or a connection bar.
 - Use T3's supported network/pairing flow. Network support is in scope; a strictly local-only integration is not required.
 - The wrapper only displays T3's existing UI. Reuse T3's connection flow; do not build a custom client protocol, backend, or tunnel service.
 - Copy Herdr's focus behavior: opening makes the panel key and focuses its webview; dismissal hides the panel without destroying the webview. Do not add explicit previous-app activation initially.

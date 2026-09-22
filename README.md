@@ -13,28 +13,30 @@ open "$HOME/Applications/T3 HUD.app"
 
 After installation, open **T3 HUD** from Finder or Spotlight. Quit from the **T3** menu bar menu. Quit the previous HUD before reinstalling. The menu also provides a show/hide fallback if another app owns the shortcut.
 
-For development, `./scripts/run` builds and opens `dist/T3 HUD.app`. `swift build` checks compilation. The UI verification procedure is in [docs/verification-features.md](docs/verification-features.md); this project currently has no unit-test suite.
+For development, `./scripts/run` builds and opens `dist/T3 HUD.app`. `swift build` checks compilation. Run the activity bridge checks with `node --test Tests/Bridge/activity.test.cjs`. The UI verification procedure is in [docs/verification-features.md](docs/verification-features.md); this project has no Swift unit-test target.
 
 ## Connect to T3
 
-For T3 Connect, enter `https://app.t3.codes` and sign in to access your connected environments.
+The HUD is a client only: it always loads hosted T3 Connect at `https://app.t3.codes` and never connects to a T3 server address directly. Sign in there to reach your connected environments. Use the same environments as your normal T3 app to see the same threads. T3 Connect handles environment discovery and pairing; T3 stores the browser session, thread selection, and drafts. Direct server addresses saved by earlier builds are discarded on launch.
 
-The connection bar is hidden by default. Open **T3 → Show Connection Bar** or press **⌘L**, paste your T3 server URL or pairing link, and click **Connect**. The bar hides after connecting; the same menu or shortcut can hide it without reloading the page. Use the same environment as your normal T3 app to see the same threads. The HUD remembers the connection address without query parameters, fragments, or pairing credentials. T3 stores the browser session and handles thread selection and drafts. Pairing links are only needed for initial authorization or after revocation.
+The wrapper neither starts T3 nor creates a tunnel. In T3 desktop, Settings → Connections contains its network and pairing controls. Changing T3's network setting can restart it.
 
-The wrapper neither starts T3 nor creates a tunnel. In T3 desktop, Settings → Connections contains its network and pairing controls. Changing T3's network setting can restart it. If your server address changes, enter the new address in the HUD.
-
-When the server is unavailable, the HUD displays a disconnected message and checks for recovery every five seconds. It preserves the loaded page so T3 can reconnect without losing unsent drafts. If the initial page could not load, the HUD loads it when the server returns. **Reload** explicitly reloads the page and relies on T3's own draft persistence.
+When T3 Connect is unreachable, the HUD displays a disconnected message and checks for recovery every five seconds. It preserves the loaded page so T3 can reconnect without losing unsent drafts. If the initial page could not load, the HUD loads it when the server returns. **T3 → Reload T3** (**⌘R**) explicitly reloads the page and relies on T3's own draft persistence.
 
 ## HUD notifications
 
+A gold comet circles the floating icon while an observed connected thread is working. Its color is HSL 45°, 100%, 56%, with a 2.6-second orbit. The existing red notification-count badge stays at the top right and can appear alongside the comet. With macOS Reduce Motion enabled, activity uses a steady gold ring.
+
+Activity is independent of notification permission. The experimental activity bridge observes T3's existing HTTP shell snapshots and WebSocket shell updates; it creates no requests or additional connections. Pending approval/input and monitoring-only threads do not animate. Closed connections stop contributing activity. Only the aggregate working flag reaches native code. This relies on T3's current wire format and on the shell state received during this HUD session, including HTTP snapshots; it is not a server-wide monitor when the HUD is disconnected.
+
 For T3 Connect, enable notifications in T3 settings and approve **Enable HUD Alerts**. While the HUD is hidden, notifications show the thread title beside the floating icon for eight seconds. A new notification replaces the toast and restarts its timer. Click the toast to open its thread. The icon mirrors T3’s notification badge; T3 controls when that badge clears.
 
-The experimental bridge adapts browser notifications inside the embedded UI. It does not fork T3 or enable macOS Notification Center alerts. Alert permission is remembered per origin. The bridge currently supports hosted T3 Connect; direct server URLs can display the UI but do not receive bridge alerts. Changes to T3’s notification implementation may require a wrapper update.
+The experimental bridge adapts browser notifications inside the embedded UI. It does not fork T3 or enable macOS Notification Center alerts. Alert permission is remembered per origin. Changes to T3’s notification implementation may require a wrapper update.
 
 ## Layout
 
 - `Sources/T3HUD/` — native windows, hotkey, WebKit host, connectivity monitoring.
-- `Sources/T3HUDCore/` — connection URL handling and display geometry.
+- `Sources/T3HUDCore/` — display geometry.
 - `Tests/UI/` — isolated web and native-window fixtures for UI checks.
 - `Resources/Info.plist` — app bundle metadata.
 - `scripts/` — build, install, run, and verification helpers.
