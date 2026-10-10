@@ -160,6 +160,7 @@ final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDele
         icon.contentView = button
         attention.icon = icon
         attention.onBadge = { [weak button] image in button?.badgeImage = image }
+        attention.onDone = { [weak button] count in button?.doneCount = count }
         attention.onActivity = { [weak self, weak button] working in
             self?.activityWorking = working
             button?.isWorking = working && self?.reachable != false

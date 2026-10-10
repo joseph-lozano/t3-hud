@@ -2,6 +2,8 @@ import AppKit
 
 final class FloatingIcon: NSButton {
     var badgeImage: NSImage? { didSet { needsDisplay = true } }
+    /// Threads T3 marks Done. Unlike T3's badge, this persists until they are read.
+    var doneCount = 0 { didSet { if oldValue != doneCount { needsDisplay = true } } }
     var isWorking = false {
         didSet {
             guard oldValue != isWorking else { return }
@@ -95,8 +97,21 @@ final class FloatingIcon: NSButton {
         rim.lineWidth = 0.8
         rim.stroke()
         if isWorking { drawComet() }
-        badgeImage?.draw(in: NSRect(x: bounds.maxX - 20, y: isFlipped ? bounds.minY : bounds.maxY - 20, width: 20, height: 20),
-                         from: .zero, operation: .sourceOver, fraction: 1, respectFlipped: true, hints: nil)
+        let badge = NSRect(x: bounds.maxX - 20, y: isFlipped ? bounds.minY : bounds.maxY - 20, width: 20, height: 20)
+        if doneCount > 0 { drawCount(in: badge) } else {
+            badgeImage?.draw(in: badge, from: .zero, operation: .sourceOver, fraction: 1, respectFlipped: true, hints: nil)
+        }
+    }
+
+    /// Matches T3's favicon badge: a red circle with a white count, capped at 9+.
+    private func drawCount(in rect: NSRect) {
+        let text = (doneCount > 9 ? "9+" : String(doneCount)) as NSString
+        let attributes: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: doneCount > 9 ? 9 : 12, weight: .bold), .foregroundColor: NSColor.white]
+        let size = text.size(withAttributes: attributes)
+        let circle = rect.insetBy(dx: 1, dy: 1)
+        NSColor(srgbRed: 0.94, green: 0.27, blue: 0.27, alpha: 1).setFill()
+        NSBezierPath(ovalIn: circle).fill()
+        text.draw(at: NSPoint(x: circle.midX - size.width / 2, y: circle.midY - size.height / 2), withAttributes: attributes)
     }
 
     private func drawComet() {

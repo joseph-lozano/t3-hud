@@ -25,7 +25,7 @@ If the connection drops, the HUD keeps the page open, so your drafts survive, an
 
 A gold comet circles the icon while a thread is working.
 
-To get alerts, enable notifications in T3 and approve **Enable HUD Alerts**. While the HUD is hidden, each alert shows the thread title beside the icon. Click it to open the thread. The icon also shows T3's badge count.
+To get alerts, enable notifications in T3 and approve **Enable HUD Alerts**. While the HUD is hidden, each alert shows the thread title beside the icon. Click it to open the thread. The icon badge counts the threads T3 marks **Done** and stays until you read them. When none are Done, it shows T3's own notification badge.
 
 ## Development
 

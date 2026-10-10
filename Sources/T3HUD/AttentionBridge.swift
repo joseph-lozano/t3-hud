@@ -8,6 +8,7 @@ final class AttentionBridge: NSObject, WKScriptMessageHandler {
     weak var icon: NSPanel?
     var onBadge: ((NSImage?) -> Void)?
     var onActivity: ((Bool) -> Void)?
+    var onDone: ((Int) -> Void)?
     var onOpen: (() -> Void)?
     var origin = ""
     var toast: NSPanel?
@@ -39,6 +40,7 @@ final class AttentionBridge: NSObject, WKScriptMessageHandler {
         case "activity":
             guard let working = data["working"] as? Bool else { return }
             onActivity?(working)
+            if let done = data["done"] as? Int, (0...10_000).contains(done) { onDone?(done) }
         case "permission":
             guard let panel else { return }
             let alert=NSAlert(); alert.messageText="Enable HUD alerts?"
