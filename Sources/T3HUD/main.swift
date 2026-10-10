@@ -9,7 +9,7 @@ final class HUDPanel: NSPanel {
     override func cancelOperation(_ sender: Any?) {} // Escape remains available to T3.
 }
 
-final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, NSWindowDelegate {
+final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, NSWindowDelegate, WKHTTPCookieStoreObserver {
     private var panel: HUDPanel!
     private var icon: NSPanel!
     private var web: WKWebView!
@@ -49,6 +49,13 @@ final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDele
         let menu = NSMenu()
         menu.addItem(withTitle: "Show / Hide T3 HUD", action: #selector(toggle), keyEquivalent: "")
         menu.addItem(withTitle: "Reload T3", action: #selector(refresh), keyEquivalent: "r")
+        let channels = NSMenu()
+        for (title, channel) in [("Stable", "latest"), ("Nightly", "nightly")] {
+            let choice = channels.addItem(withTitle: title, action: #selector(chooseChannel(_:)), keyEquivalent: "")
+            choice.representedObject = channel
+            choice.target = self
+        }
+        menu.addItem(withTitle: "Update Channel", action: nil, keyEquivalent: "").submenu = channels
         menu.addItem(.separator())
         menu.addItem(withTitle: "Quit T3 HUD", action: #selector(quit), keyEquivalent: "q")
         menu.items.forEach { $0.target = self }
@@ -100,6 +107,8 @@ final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDele
             }
         }
         web = WKWebView(frame: .zero, configuration: configuration)
+        configuration.websiteDataStore.httpCookieStore.add(self)
+        cookiesDidChange(in: configuration.websiteDataStore.httpCookieStore)
         web.navigationDelegate = self; web.uiDelegate = self
         attention.web = web; attention.panel = panel
         attention.onOpen = { [weak self] in self?.show() }
@@ -272,6 +281,27 @@ final class HUD: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDele
     @objc private func refresh() {
         failedNavigation = false
         web.load(URLRequest(url: connection))
+    }
+
+    /// T3's router serves the channel named by its cookie on the same origin, so sign-in and bridges are unaffected.
+    @objc private func chooseChannel(_ sender: NSMenuItem) {
+        guard let channel = sender.representedObject as? String,
+              let url = URL(string: "/__t3code/channel?channel=\(channel)", relativeTo: connection) else { return }
+        failedNavigation = false
+        web.load(URLRequest(url: url))
+    }
+
+    func cookiesDidChange(in cookieStore: WKHTTPCookieStore) {
+        // T3's About panel can also change the channel; the cookie is the source of truth.
+        cookieStore.getAllCookies { [weak self] cookies in
+            guard let self else { return }
+            let nightly = cookies.contains { $0.name == "t3code_web_channel" && $0.value == "nightly" && self.connection.host?.hasSuffix($0.domain.trimmingCharacters(in: ["."])) == true }
+            for menu in [self.item.menu, NSApp.mainMenu?.items.first?.submenu] {
+                menu?.item(withTitle: "Update Channel")?.submenu?.items.forEach {
+                    $0.state = ($0.representedObject as? String == "nightly") == nightly ? .on : .off
+                }
+            }
+        }
     }
 
     @objc private func quit() { NSApp.terminate(nil) }

@@ -19,6 +19,8 @@ A manually triggered GitHub Actions workflow builds signed, notarized Apple Sili
 
 The HUD loads T3 Connect at `https://app.t3.codes`. Sign in there to reach your environments. The HUD doesn't start T3 or connect to T3 servers directly.
 
+To use T3's nightly build, choose **T3 → Update Channel → Nightly**. This sets the same channel as the track selector in T3's About panel and reloads the page. You stay on `app.t3.codes`, so you don't need to sign in again.
+
 If the connection drops, the HUD keeps the page open, so your drafts survive, and reconnects on its own. Press ⌘R to reload.
 
 A gold comet circles the icon while a thread is working.
